@@ -13,6 +13,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>demo</module>
+        <module>loadbalance-demo</module>
+        <module>loadbalance-vip</module>
     </modules>
 
     <dependencyManagement>
