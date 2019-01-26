@@ -14,6 +14,14 @@
     <modules>
         <module>xml-demo</module>
         <module>loadbalance-demo</module>
+        <module>group-demo</module>
+        <module>generic-demo</module>
+        <module>api-demo</module>
+        <module>async-demo</module>
+        <module>callback-demo</module>
+        <module>stub-demo</module>
+        <module>mock-demo</module>
+        <module>delay-demo</module>
     </modules>
 
     <dependencies>

@@ -3,6 +3,8 @@ package com.luban.dubbo_vip_xml_demo.consumer;
 import com.luban.dubbo_vip_xml_demo.api.HelloService;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.io.IOException;
+
 /**
  * *************书山有路勤为径***************
  * 鲁班学院
@@ -13,7 +15,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class Consumer {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("dubbo-consumer.xml");
         context.start();
 
@@ -22,5 +24,7 @@ public class Consumer {
         String result = helloService.sayHello("周瑜");
 
         System.out.println(result);
+
+        System.in.read();
     }
 }
