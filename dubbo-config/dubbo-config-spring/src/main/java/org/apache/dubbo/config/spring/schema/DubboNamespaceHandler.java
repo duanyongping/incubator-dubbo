@@ -41,6 +41,7 @@ public class DubboNamespaceHandler extends NamespaceHandlerSupport {
         Version.checkDuplicate(DubboNamespaceHandler.class);
     }
 
+    // Spring容器启动时会自动调用里面的init()方法，从而完成对自定义标签的解析。
     @Override
     public void init() {
         registerBeanDefinitionParser("application", new DubboBeanDefinitionParser(ApplicationConfig.class, true));
