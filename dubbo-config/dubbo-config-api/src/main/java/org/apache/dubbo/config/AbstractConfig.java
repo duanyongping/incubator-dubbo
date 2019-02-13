@@ -541,6 +541,7 @@ public abstract class AbstractConfig implements Serializable {
      */
     public void refresh() {
         try {
+            // 单例模式
             CompositeConfiguration compositeConfiguration = Environment.getInstance().getConfiguration(getPrefix(), getId());
             InmemoryConfiguration config = new InmemoryConfiguration(getPrefix(), getId());
             config.addProperties(getMetaData());
@@ -615,6 +616,7 @@ public abstract class AbstractConfig implements Serializable {
         return true;
     }
 
+    // 最重要的一个比较条件就是第一个，意思其实就是如果方法是以get或is开头就是metaMethod
     private boolean isMetaMethod(Method method) {
         String name = method.getName();
         if (!(name.startsWith("get") || name.startsWith("is"))) {

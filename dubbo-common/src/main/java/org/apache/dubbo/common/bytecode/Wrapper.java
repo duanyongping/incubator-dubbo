@@ -211,6 +211,7 @@ public abstract class Wrapper {
         c3.append(" throw new " + NoSuchMethodException.class.getName() + "(\"Not found method \\\"\"+$2+\"\\\" in class " + c.getName() + ".\"); }");
 
         // deal with get/set method.
+        // 有很多规则，不知get/set，将这些方法后面的字符串作为属性
         Matcher matcher;
         for (Map.Entry<String, Method> entry : ms.entrySet()) {
             String md = entry.getKey();
@@ -257,6 +258,7 @@ public abstract class Wrapper {
         cc.addMethod(c2.toString());
         cc.addMethod(c3.toString());
 
+        // 这里应该联想到object对应的wrapper类
         try {
             Class<?> wc = cc.toClass();
             // setup static field.

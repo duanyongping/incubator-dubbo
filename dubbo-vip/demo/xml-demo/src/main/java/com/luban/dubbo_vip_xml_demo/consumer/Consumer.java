@@ -21,6 +21,7 @@ public class Consumer {
 
         HelloService helloService = context.getBean("helloService", HelloService.class);
 
+        // 这里会先进入到mockClusterInvoker
         String result = helloService.sayHello("周瑜");
 
         System.out.println(result);

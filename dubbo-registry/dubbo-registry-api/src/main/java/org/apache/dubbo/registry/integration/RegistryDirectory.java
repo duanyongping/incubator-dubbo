@@ -176,6 +176,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
+    // DubboProtocol的引入是用的消费订阅机制，因为服务都可能会修改，反正是要通知的，所以同一使用这种方式
     @Override
     public synchronized void notify(List<URL> urls) {
         List<URL> categoryUrls = urls.stream()
@@ -357,7 +358,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
                         ExtensionLoader.getExtensionLoader(Protocol.class).getSupportedExtensions()));
                 continue;
             }
-            URL url = mergeUrl(providerUrl);
+            URL url = mergeUrl(providerUrl);// 根据配置重写url，注意：url重写是在这里做的，而不是调用的时候
 
             String key = url.toFullString(); // The parameter urls are sorted
             if (keys.contains(key)) { // Repeated url
@@ -376,6 +377,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
                         enabled = url.getParameter(Constants.ENABLED_KEY, true);
                     }
                     if (enabled) {
+                        // 所以这里就会进入到对应协议的实现类里去了
                         invoker = new InvokerDelegate<T>(protocol.refer(serviceType, url), url, providerUrl);
                     }
                 } catch (Throwable t) {

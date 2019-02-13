@@ -1,4 +1,6 @@
-package com.luban.dubbo_vip_xml_demo.api;
+package com.luban.spring;
+
+import org.springframework.stereotype.Component;
 
 /**
  * *************书山有路勤为径***************
@@ -8,7 +10,7 @@ package com.luban.dubbo_vip_xml_demo.api;
  * 讲师：周瑜老师
  * *************学海无涯苦作舟***************
  */
-public interface HelloService {
-    public String sayHello(String username);
-    public String replyHello(String username);
+public class DemoService {
+
+
 }
