@@ -583,7 +583,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         return false;
     }
 
-    public void buildRouterChain(URL url) {
+    public void  buildRouterChain(URL url) {
         this.setRouterChain(RouterChain.buildChain(url));
     }
 

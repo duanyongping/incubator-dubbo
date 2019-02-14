@@ -372,6 +372,7 @@ public class DubboProtocol extends AbstractProtocol {
             connections = 1;
         }
 
+        // 这里根据 connections 数量决定是获取共享客户端还是创建新的客户端实例，默认情况下，使用共享客户端实例
         ExchangeClient[] clients = new ExchangeClient[connections];
         for (int i = 0; i < clients.length; i++) {
             if (serviceShareConnect) {
@@ -385,6 +386,8 @@ public class DubboProtocol extends AbstractProtocol {
 
     /**
      * Get shared connection
+     * 上面方法先访问缓存，若缓存未命中，则通过 initClient 方法创建新的 ExchangeClient 实例，
+     * 并将该实例传给 ReferenceCountExchangeClient 构造方法创建一个带有引用计数功能的 ExchangeClient 实例。
      */
     private ExchangeClient getSharedClient(URL url) {
         String key = url.getAddress();
@@ -404,7 +407,9 @@ public class DubboProtocol extends AbstractProtocol {
                 return referenceClientMap.get(key);
             }
 
+            // 创建 ExchangeClient 客户端
             ExchangeClient exchangeClient = initClient(url);
+            // 将 ExchangeClient 实例传给 ReferenceCountExchangeClient，这里使用了装饰模式
             client = new ReferenceCountExchangeClient(exchangeClient, ghostClientMap);
             referenceClientMap.put(key, client);
             ghostClientMap.remove(key);
@@ -418,9 +423,10 @@ public class DubboProtocol extends AbstractProtocol {
      */
     private ExchangeClient initClient(URL url) {
 
-        // client type setting.
+        // client type setting. 客户端类型，默认为netty
         String str = url.getParameter(Constants.CLIENT_KEY, url.getParameter(Constants.SERVER_KEY, Constants.DEFAULT_REMOTING_CLIENT));
 
+        // 添加编解码和心跳包参数到 url 中
         url = url.addParameter(Constants.CODEC_KEY, DubboCodec.NAME);
         // enable heartbeat by default
         url = url.addParameterIfAbsent(Constants.HEARTBEAT_KEY, String.valueOf(Constants.DEFAULT_HEARTBEAT));
@@ -435,6 +441,7 @@ public class DubboProtocol extends AbstractProtocol {
         try {
             // connection should be lazy
             if (url.getParameter(Constants.LAZY_CONNECT_KEY, false)) {
+                // 创建懒加载 ExchangeClient 实例，在请求时才创建client
                 client = new LazyConnectExchangeClient(url, requestHandler);
             } else {
                 client = Exchangers.connect(url, requestHandler);

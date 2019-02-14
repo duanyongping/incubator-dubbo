@@ -82,6 +82,7 @@ public abstract class Proxy {
         }
 
         StringBuilder sb = new StringBuilder();
+        // 遍历接口列表
         for (int i = 0; i < ics.length; i++) {
             String itf = ics[i].getName();
             if (!ics[i].isInterface()) {
@@ -90,6 +91,7 @@ public abstract class Proxy {
 
             Class<?> tmp = null;
             try {
+                // 重新加载接口类
                 tmp = Class.forName(itf, false, cl);
             } catch (ClassNotFoundException e) {
             }
@@ -98,10 +100,12 @@ public abstract class Proxy {
                 throw new IllegalArgumentException(ics[i] + " is not visible from class loader");
             }
 
+            // 拼接接口全限定名，分隔符为 ;
             sb.append(itf).append(';');
         }
 
         // use interface class name list as key.
+        // 使用拼接后的接口名作为 key
         String key = sb.toString();
 
         // get cache by class loader.
@@ -117,6 +121,7 @@ public abstract class Proxy {
         Proxy proxy = null;
         synchronized (cache) {
             do {
+                // 从缓存中获取 Reference<Proxy> 实例
                 Object value = cache.get(key);
                 if (value instanceof Reference<?>) {
                     proxy = (Proxy) ((Reference<?>) value).get();
