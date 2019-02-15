@@ -114,10 +114,10 @@ public class Environment {
     public CompositeConfiguration getConfiguration(String prefix, String id) {
         CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
         // Config center has the highest priority
-        compositeConfiguration.addConfiguration(this.getSystemConfig(prefix, id));
+        compositeConfiguration.addConfiguration(this.getSystemConfig(prefix, id));   // -D
         compositeConfiguration.addConfiguration(this.getAppExternalConfig(prefix, id));
         compositeConfiguration.addConfiguration(this.getExternalConfig(prefix, id));
-        compositeConfiguration.addConfiguration(this.getPropertiesConfig(prefix, id));
+        compositeConfiguration.addConfiguration(this.getPropertiesConfig(prefix, id)); // properties文件
         return compositeConfiguration;
     }
 

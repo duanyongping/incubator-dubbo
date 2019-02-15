@@ -75,6 +75,7 @@ public abstract class Proxy {
      * @param cl  class loader.
      * @param ics interface class array.
      * @return Proxy instance.
+     * 生成的代理可以用Arthas
      */
     public static Proxy getProxy(ClassLoader cl, Class<?>... ics) {
         if (ics.length > 65535) {

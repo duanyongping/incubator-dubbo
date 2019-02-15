@@ -40,6 +40,7 @@ public class FailfastClusterInvoker<T> extends AbstractClusterInvoker<T> {
         super(directory);
     }
 
+    // Failfast Cluster：快速失败，只发起一次调用，失败立即报错。通常用于非幂等性的写操作，比如新增记录。
     @Override
     public Result doInvoke(Invocation invocation, List<Invoker<T>> invokers, LoadBalance loadbalance) throws RpcException {
         checkInvokers(invokers, invocation);

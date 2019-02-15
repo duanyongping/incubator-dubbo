@@ -73,6 +73,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
         if (failTimer == null) {
             synchronized (this) {
                 if (failTimer == null) {
+                    // hash时间轮定时重试
                     failTimer = new HashedWheelTimer(
                             new NamedThreadFactory("failback-cluster-timer", true),
                             1,
@@ -88,6 +89,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
         }
     }
 
+    // Failback Cluster：失败自动恢复，后台记录失败请求，定时重发。通常用于消息通知操作。
     @Override
     protected Result doInvoke(Invocation invocation, List<Invoker<T>> invokers, LoadBalance loadbalance) throws RpcException {
         Invoker<T> invoker = null;

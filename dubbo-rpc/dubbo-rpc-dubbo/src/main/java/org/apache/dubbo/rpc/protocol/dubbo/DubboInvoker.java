@@ -66,6 +66,14 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         this.invokers = invokers;
     }
 
+    /**
+     * Dubbo 实现同步和异步调用比较关键的一点就在于由谁调用 ResponseFuture 的 get 方法。
+     * 同步调用模式下，由框架自身调用 ResponseFuture 的 get 方法。
+     * 异步调用模式下，则由用户调用该方法
+     * @param invocation
+     * @return
+     * @throws Throwable
+     */
     @Override
     protected Result doInvoke(final Invocation invocation) throws Throwable {
         RpcInvocation inv = (RpcInvocation) invocation;
@@ -80,16 +88,23 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
             currentClient = clients[index.getAndIncrement() % clients.length];
         }
         try {
+            // 获取异步配置
             boolean isAsync = RpcUtils.isAsync(getUrl(), invocation);
             boolean isAsyncFuture = RpcUtils.isReturnTypeFuture(inv);
+            // isOneway 为 true，表示“单向”通信
             boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);
             int timeout = getUrl().getMethodParameter(methodName, Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+
+            // 异步无返回值
             if (isOneway) {
                 boolean isSent = getUrl().getMethodParameter(methodName, Constants.SENT_KEY, false);
                 currentClient.send(inv, isSent);
+                // 异步结果为空，返回值为空
                 RpcContext.getContext().setFuture(null);
                 return new RpcResult();
             } else if (isAsync) {
+                // 异步有返回值
+                // ResponseFuture默认实现类为DefaultFuture
                 ResponseFuture future = currentClient.request(inv, timeout);
                 // For compatibility
                 FutureAdapter<Object> futureAdapter = new FutureAdapter<>(future);
@@ -104,7 +119,9 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
                 }
                 return result;
             } else {
+                // 同步调用
                 RpcContext.getContext().setFuture(null);
+                // 发送请求，得到一个 ResponseFuture 实例，并调用该实例的 get 方法进行等待
                 return (Result) currentClient.request(inv, timeout).get();
             }
         } catch (TimeoutException e) {

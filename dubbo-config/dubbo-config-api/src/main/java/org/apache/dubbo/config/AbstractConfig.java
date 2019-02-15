@@ -538,6 +538,7 @@ public abstract class AbstractConfig implements Serializable {
     /**
      * TODO: Currently, only support overriding of properties explicitly defined in Config class, doesn't support
      * overriding of customized parameters stored in 'parameters'.
+     * // 许多方法都会调用这个方法，根据前缀来找配置
      */
     public void refresh() {
         try {
@@ -547,9 +548,11 @@ public abstract class AbstractConfig implements Serializable {
             config.addProperties(getMetaData());
             if (Environment.getInstance().isConfigCenterFirst()) {
                 // The sequence would be: SystemConfiguration -> ExternalConfiguration -> AppExternalConfiguration -> AbstractConfig -> PropertiesConfiguration
+                // 配置中心优先的话就加在地3个位置，位于Properties之前，就代表优先级高于Properties
                 compositeConfiguration.addConfiguration(3, config);
             } else {
                 // The sequence would be: SystemConfiguration -> AbstractConfig -> ExternalConfiguration -> AppExternalConfiguration -> PropertiesConfiguration
+                // 配置中心优先的话就加在地3个位置，位于Properties之前，就代表优先级高于Properties
                 compositeConfiguration.addConfiguration(1, config);
             }
 

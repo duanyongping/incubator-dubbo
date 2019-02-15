@@ -59,6 +59,8 @@ public class CompositeConfiguration implements Configuration {
         this.configList.add(pos, configuration);
     }
 
+
+    // 循环各种配置位置，按LinkedList的顺序获取，存在就拿，配置优先的顺序其实就在这里
     @Override
     public Object getInternalProperty(String key) {
         Configuration firstMatchingConfiguration = null;

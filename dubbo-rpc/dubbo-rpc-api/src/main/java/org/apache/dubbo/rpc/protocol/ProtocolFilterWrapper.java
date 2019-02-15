@@ -46,6 +46,8 @@ public class ProtocolFilterWrapper implements Protocol {
 
     private static <T> Invoker<T> buildInvokerChain(final Invoker<T> invoker, String key, String group) {
         Invoker<T> last = invoker;
+        // 获取所有激活的filters扩展
+        // 注意，这个方法传进来的invoker是DubboInvoker, 然后倒序遍历，所以最后一个filter的next就是DubboInvoker
         List<Filter> filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);
         if (!filters.isEmpty()) {
             for (int i = filters.size() - 1; i >= 0; i--) {
@@ -70,6 +72,9 @@ public class ProtocolFilterWrapper implements Protocol {
 
                     @Override
                     public Result invoke(Invocation invocation) throws RpcException {
+                        // 执行过滤器
+                        System.out.println(filter.toString());
+                        System.out.println(next.getClass().getSimpleName());
                         Result result = filter.invoke(next, invocation);
                         if (result instanceof AsyncRpcResult) {
                             AsyncRpcResult asyncResult = (AsyncRpcResult) result;

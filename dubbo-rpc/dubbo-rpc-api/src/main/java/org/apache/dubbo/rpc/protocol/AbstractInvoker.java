@@ -125,6 +125,7 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         return getInterface() + " -> " + (getUrl() == null ? "" : getUrl().toString());
     }
 
+    // 这个方法主要将contextAttachments加到invocation中去
     @Override
     public Result invoke(Invocation inv) throws RpcException {
         // if invoker is destroyed due to address refresh from registry, let's allow the current invoke to proceed

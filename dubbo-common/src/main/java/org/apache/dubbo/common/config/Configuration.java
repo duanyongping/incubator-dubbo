@@ -18,6 +18,19 @@ package org.apache.dubbo.common.config;
 
 /**
  * Configuration interface, to fetch the value for the specified key.
+ * 配置中心（v2.7.0）在Dubbo中承担两个职责：
+ *
+ * 外部化配置。启动配置的集中式存储，可以做到统一环境、减少开发侧感知。 （简单理解为dubbo.properties的外部化存储）。举个例子：可以将注册中心地址配置在配置中心
+ * 服务治理。服务治理规则的存储与通知。
+ *
+ * 现在有好几个地方可以配置了
+ * jvm启动层
+ * properties层
+ * xml层
+ * 注解层
+ * 配置中心层
+ *
+ * 那么这个优先级是怎么样的，我们应该去服务引入或导入逻辑去查看
  */
 public interface Configuration {
     /**

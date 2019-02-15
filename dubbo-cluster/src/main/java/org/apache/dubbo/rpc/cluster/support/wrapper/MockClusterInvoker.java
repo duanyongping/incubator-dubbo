@@ -73,6 +73,7 @@ public class MockClusterInvoker<T> implements Invoker<T> {
         String value = directory.getUrl().getMethodParameter(invocation.getMethodName(), Constants.MOCK_KEY, Boolean.FALSE.toString()).trim();
         if (value.length() == 0 || value.equalsIgnoreCase("false")) {
             //no mock
+            // 这里默认的是FailoverClusterInvoker
             result = this.invoker.invoke(invocation);
         } else if (value.startsWith("force")) {
             if (logger.isWarnEnabled()) {
