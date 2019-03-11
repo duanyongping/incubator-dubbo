@@ -18,12 +18,25 @@ package org.apache.dubbo.config;
 
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.config.api.DemoService;
+import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.config.provider.impl.DemoServiceImpl;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ReferenceConfigTest {
+
+    @Before
+    public void setUp() {
+        ConfigManager.getInstance().clear();
+    }
+
+    @After
+    public void tearDown() {
+        ConfigManager.getInstance().clear();
+    }
 
     @Test
     public void testInjvm() throws Exception {
@@ -54,7 +67,7 @@ public class ReferenceConfigTest {
             System.setProperty("java.net.preferIPv4Stack", "true");
             demoService.export();
             rc.get();
-            Assertions.assertTrue(!Constants.LOCAL_PROTOCOL.equalsIgnoreCase(
+            Assert.assertTrue(!Constants.LOCAL_PROTOCOL.equalsIgnoreCase(
                     rc.getInvoker().getUrl().getProtocol()));
         } finally {
             System.clearProperty("java.net.preferIPv4Stack");
@@ -87,8 +100,8 @@ public class ReferenceConfigTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Assertions.assertFalse(success);
-        Assertions.assertNull(demoService);
+        Assert.assertFalse(success);
+        Assert.assertNull(demoService);
 
         ServiceConfig<DemoService> sc = new ServiceConfig<DemoService>();
         sc.setInterface(DemoService.class);
@@ -107,8 +120,8 @@ public class ReferenceConfigTest {
         } finally {
             System.clearProperty("java.net.preferIPv4Stack");
         }
-        Assertions.assertTrue(success);
-        Assertions.assertNotNull(demoService);
+        Assert.assertTrue(success);
+        Assert.assertNotNull(demoService);
 
     }
 }

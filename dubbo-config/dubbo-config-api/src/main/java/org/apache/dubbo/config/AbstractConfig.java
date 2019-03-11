@@ -140,7 +140,7 @@ public abstract class AbstractConfig implements Serializable {
                 break;
             }
         }
-        return tag.substring(0, 1).toLowerCase() + tag.substring(1);
+        return StringUtils.camelToSplitName(tag, "-");
     }
 
     protected static void appendParameters(Map<String, String> parameters, Object config) {
@@ -304,9 +304,9 @@ public abstract class AbstractConfig implements Serializable {
      * Check whether there is a <code>Extension</code> who's name (property) is <code>value</code> (special treatment is
      * required)
      *
-     * @param type     The Extension type
+     * @param type The Extension type
      * @param property The extension key
-     * @param value    The Extension name
+     * @param value The Extension name
      */
     protected static void checkMultiExtension(Class<?> type, String property, String value) {
         checkMultiName(property, value);
@@ -359,7 +359,7 @@ public abstract class AbstractConfig implements Serializable {
     }
 
     protected static void checkParameterName(Map<String, String> parameters) {
-        if (CollectionUtils.isEmptyMap(parameters)) {
+        if (parameters == null || parameters.size() == 0) {
             return;
         }
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
@@ -485,7 +485,12 @@ public abstract class AbstractConfig implements Serializable {
         for (Method method : methods) {
             try {
                 String name = method.getName();
-                if (isMetaMethod(method)) {
+                if ((name.startsWith("get") || name.startsWith("is"))
+                        && !name.equals("get")
+                        && !"getClass".equals(name)
+                        && Modifier.isPublic(method.getModifiers())
+                        && method.getParameterTypes().length == 0
+                        && ClassHelper.isPrimitive(method.getReturnType())) {
                     String prop = calculateAttributeFromGetter(name);
                     String key;
                     Parameter parameter = method.getAnnotation(Parameter.class);
@@ -538,21 +543,17 @@ public abstract class AbstractConfig implements Serializable {
     /**
      * TODO: Currently, only support overriding of properties explicitly defined in Config class, doesn't support
      * overriding of customized parameters stored in 'parameters'.
-     * // 许多方法都会调用这个方法，根据前缀来找配置
      */
     public void refresh() {
         try {
-            // 单例模式
             CompositeConfiguration compositeConfiguration = Environment.getInstance().getConfiguration(getPrefix(), getId());
             InmemoryConfiguration config = new InmemoryConfiguration(getPrefix(), getId());
             config.addProperties(getMetaData());
             if (Environment.getInstance().isConfigCenterFirst()) {
                 // The sequence would be: SystemConfiguration -> ExternalConfiguration -> AppExternalConfiguration -> AbstractConfig -> PropertiesConfiguration
-                // 配置中心优先的话就加在地3个位置，位于Properties之前，就代表优先级高于Properties
                 compositeConfiguration.addConfiguration(3, config);
             } else {
                 // The sequence would be: SystemConfiguration -> AbstractConfig -> ExternalConfiguration -> AppExternalConfiguration -> PropertiesConfiguration
-                // 配置中心优先的话就加在地3个位置，位于Properties之前，就代表优先级高于Properties
                 compositeConfiguration.addConfiguration(1, config);
             }
 
@@ -619,28 +620,31 @@ public abstract class AbstractConfig implements Serializable {
         return true;
     }
 
-    // 最重要的一个比较条件就是第一个，意思其实就是如果方法是以get或is开头就是metaMethod
-    private boolean isMetaMethod(Method method) {
-        String name = method.getName();
-        if (!(name.startsWith("get") || name.startsWith("is"))) {
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj.getClass().getName().equals(this.getClass().getName()))) {
             return false;
         }
-        if ("get".equals(name)) {
-            return false;
-        }
-        if ("getClass".equals(name)) {
-            return false;
-        }
-        if (!Modifier.isPublic(method.getModifiers())) {
-            return false;
-        }
-        if (method.getParameterTypes().length != 0) {
-            return false;
-        }
-        if (!ClassHelper.isPrimitive(method.getReturnType())) {
-            return false;
+
+        Method[] methods = this.getClass().getMethods();
+        for (Method method1 : methods) {
+            if (ClassHelper.isGetter(method1) && ClassHelper.isPrimitive(method1.getReturnType())) {
+                Parameter parameter = method1.getAnnotation(Parameter.class);
+                if (parameter != null && parameter.excluded()) {
+                    continue;
+                }
+                try {
+                    Method method2 = obj.getClass().getMethod(method1.getName(), method1.getParameterTypes());
+                    Object value1 = method1.invoke(this, new Object[]{});
+                    Object value2 = method2.invoke(obj, new Object[]{});
+                    if ((value1 != null && value2 != null) && !value1.equals(value2)) {
+                        return false;
+                    }
+                } catch (Exception e) {
+                    return true;
+                }
+            }
         }
         return true;
     }
-
 }
