@@ -73,8 +73,8 @@ public class ProtocolFilterWrapper implements Protocol {
                     @Override
                     public Result invoke(Invocation invocation) throws RpcException {
                         // 执行过滤器
-                        System.out.println(filter.toString());
-                        System.out.println(next.getClass().getSimpleName());
+//                        System.out.println(filter.toString());
+//                        System.out.println(next.getClass().getSimpleName());
                         Result result = filter.invoke(next, invocation);
                         if (result instanceof AsyncRpcResult) {
                             AsyncRpcResult asyncResult = (AsyncRpcResult) result;

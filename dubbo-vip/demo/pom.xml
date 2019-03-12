@@ -22,6 +22,7 @@
         <module>stub-demo</module>
         <module>mock-demo</module>
         <module>delay-demo</module>
+        <module>container-demo</module>
     </modules>
 
     <dependencies>
