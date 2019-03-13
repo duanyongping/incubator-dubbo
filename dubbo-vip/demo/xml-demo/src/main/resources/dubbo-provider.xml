@@ -7,7 +7,7 @@
 
     <dubbo:application name="xml-demo-provider"/>
 
-    <dubbo:protocol name="http" server="tomcat" port="8081"/>
+    <!--<dubbo:protocol name="http" server="tomcat" port="8081"/>-->
     <!--<dubbo:protocol name="http" server="servlet"/>-->
 
     <dubbo:registry address="zookeeper://127.0.0.1:2181" />
