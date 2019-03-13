@@ -19,6 +19,7 @@ package org.apache.dubbo.common.version;
 
 import org.apache.dubbo.common.Version;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
