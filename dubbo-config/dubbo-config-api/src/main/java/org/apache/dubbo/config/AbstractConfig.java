@@ -541,14 +541,19 @@ public abstract class AbstractConfig implements Serializable {
      */
     public void refresh() {
         try {
+
+            // getPrefix为对应配置类的前缀，ProviderConfig->Provider, ServiceBean->Service,
+            // getId为beanId,
             CompositeConfiguration compositeConfiguration = Environment.getInstance().getConfiguration(getPrefix(), getId());
             InmemoryConfiguration config = new InmemoryConfiguration(getPrefix(), getId());
-            config.addProperties(getMetaData());
+            config.addProperties(getMetaData()); // getMetaData就是在xml中配置的信息
             if (Environment.getInstance().isConfigCenterFirst()) {
-                // The sequence would be: SystemConfiguration -> ExternalConfiguration -> AppExternalConfiguration -> AbstractConfig -> PropertiesConfiguration
+                // 注释顺序错了...The sequence would be: SystemConfiguration -> ExternalConfiguration -> AppExternalConfiguration -> AbstractConfig -> PropertiesConfiguration
+                // -D > 配置中心应用配置 > 配置中心全局配置 > Spring容器中Bean配置的信息 > 属性文件中的信息
                 compositeConfiguration.addConfiguration(3, config);
             } else {
-                // The sequence would be: SystemConfiguration -> AbstractConfig -> ExternalConfiguration -> AppExternalConfiguration -> PropertiesConfiguration
+                // 注释顺序错了...The sequence would be: SystemConfiguration -> AbstractConfig -> ExternalConfiguration -> AppExternalConfiguration -> PropertiesConfiguration
+                // -D > Spring容器中Bean配置的信息 > 配置中心应用配置 > 配置中心全局配置 > 属性文件中的信息
                 compositeConfiguration.addConfiguration(1, config);
             }
 
@@ -557,9 +562,11 @@ public abstract class AbstractConfig implements Serializable {
             for (Method method : methods) {
                 if (ClassHelper.isSetter(method)) {
                     try {
+                        // 截取set方法作为key，从配置中获取值
                         String value = compositeConfiguration.getString(extractPropertyName(getClass(), method));
                         // isTypeMatch() is called to avoid duplicate and incorrect update, for example, we have two 'setGeneric' methods in ReferenceConfig.
                         if (StringUtils.isNotEmpty(value) && ClassHelper.isTypeMatch(method.getParameterTypes()[0], value)) {
+                            // 执行set
                             method.invoke(this, ClassHelper.convertPrimitive(method.getParameterTypes()[0], value));
                         }
                     } catch (NoSuchMethodException e) {

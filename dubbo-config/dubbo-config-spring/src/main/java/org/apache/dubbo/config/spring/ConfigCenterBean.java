@@ -59,6 +59,7 @@ public class ConfigCenterBean extends ConfigCenterConfig implements Initializing
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        System.out.println("ConfigCenterBean。。。"); // ConfigCenterBean会先于ServiceBean和ReferenceBean
         if (getApplication() == null) {
             Map<String, ApplicationConfig> applicationConfigMap = applicationContext == null ? null : BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, ApplicationConfig.class, false, false);
             if (applicationConfigMap != null && applicationConfigMap.size() > 0) {

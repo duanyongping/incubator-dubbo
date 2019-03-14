@@ -62,7 +62,7 @@ public class CompositeConfiguration implements Configuration {
     @Override
     public Object getInternalProperty(String key) {
         Configuration firstMatchingConfiguration = null;
-        for (Configuration config : configList) {
+        for (Configuration config : configList) { // 按linkedlist中的顺序获取配置
             try {
                 if (config.containsKey(key)) {
                     firstMatchingConfiguration = config;

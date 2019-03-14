@@ -789,7 +789,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         if (provider == null) {
             provider = new ProviderConfig();
         }
-        provider.refresh();
+        provider.refresh(); // 刷新ProviderConfig中的属性值
     }
 
     private void checkProtocol() {

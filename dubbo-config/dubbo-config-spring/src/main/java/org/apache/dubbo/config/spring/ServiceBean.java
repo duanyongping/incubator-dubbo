@@ -102,13 +102,19 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
             if (logger.isInfoEnabled()) {
                 logger.info("The service ready on spring started. service: " + getInterface());
             }
+            System.out.println("SeviceBean Export。。。");
             export();
         }
     }
 
     @Override
     @SuppressWarnings({"unchecked", "deprecation"})
+    // 这里就是初始化，一个service，到底属于哪个应用，哪个provider，那么modual，我们在配置文件中并没有明确的指定，所以需要在这里去进行初始化
+    // 这里并没有配置直接的覆盖
     public void afterPropertiesSet() throws Exception {
+        System.out.println("SeviceBean。。。");
+
+        // 找出当前这个service所对应的Provider,并set
         if (getProvider() == null) {
             Map<String, ProviderConfig> providerConfigMap = applicationContext == null ? null : BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, ProviderConfig.class, false, false);
             if (providerConfigMap != null && providerConfigMap.size() > 0) {
@@ -140,6 +146,8 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
                 }
             }
         }
+
+        // 找出当前这个service所对应的Application,并set
         if (getApplication() == null
                 && (getProvider() == null || getProvider().getApplication() == null)) {
             Map<String, ApplicationConfig> applicationConfigMap = applicationContext == null ? null : BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, ApplicationConfig.class, false, false);
@@ -158,6 +166,7 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
                 }
             }
         }
+        // 找出当前这个service所对应的Module,并set
         if (getModule() == null
                 && (getProvider() == null || getProvider().getModule() == null)) {
             Map<String, ModuleConfig> moduleConfigMap = applicationContext == null ? null : BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, ModuleConfig.class, false, false);
@@ -177,6 +186,7 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
             }
         }
 
+        // 如果没有指定注册中心，先取application的注册中心，再取provider的注册中心
         if (StringUtils.isEmpty(getRegistryIds())) {
             if (getApplication() != null && StringUtils.isNotEmpty(getApplication().getRegistryIds())) {
                 setRegistryIds(getApplication().getRegistryIds());
@@ -186,13 +196,14 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
             }
         }
 
+        // 从applicationContext中获取RegistryConfig
         if ((CollectionUtils.isEmpty(getRegistries()))
                 && (getProvider() == null || CollectionUtils.isEmpty(getProvider().getRegistries()))
                 && (getApplication() == null || CollectionUtils.isEmpty(getApplication().getRegistries()))) {
             Map<String, RegistryConfig> registryConfigMap = applicationContext == null ? null : BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, RegistryConfig.class, false, false);
             if (CollectionUtils.isNotEmptyMap(registryConfigMap)) {
                 List<RegistryConfig> registryConfigs = new ArrayList<>();
-                if (StringUtils.isNotEmpty(registryIds)) {
+                if (StringUtils.isNotEmpty(registryIds)) { // 如果指定了就过滤
                     Arrays.stream(Constants.COMMA_SPLIT_PATTERN.split(registryIds)).forEach(id -> {
                         if (registryConfigMap.containsKey(id)) {
                             registryConfigs.add(registryConfigMap.get(id));

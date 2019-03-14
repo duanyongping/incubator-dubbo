@@ -68,6 +68,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
 
     @Override
     public Object getObject() {
+        System.out.println("ReferenceBean getObject。。。");
         return get();
     }
 
@@ -85,6 +86,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
     @Override
     @SuppressWarnings({"unchecked"})
     public void afterPropertiesSet() throws Exception {
+        System.out.println("ReferenceBean。。。");
         if (applicationContext != null) {
             BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, ConfigCenterBean.class, false, false);
         }

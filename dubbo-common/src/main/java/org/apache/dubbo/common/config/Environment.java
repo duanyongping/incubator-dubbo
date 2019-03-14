@@ -36,8 +36,8 @@ public class Environment {
     private Map<String, InmemoryConfiguration> externalConfigs = new ConcurrentHashMap<>();
     private Map<String, InmemoryConfiguration> appExternalConfigs = new ConcurrentHashMap<>();
 
-    private Map<String, String> externalConfigurationMap = new HashMap<>();
-    private Map<String, String> appExternalConfigurationMap = new HashMap<>();
+    private Map<String, String> externalConfigurationMap = new HashMap<>(); // 所有应用公用的来至配置中心的配置
+    private Map<String, String> appExternalConfigurationMap = new HashMap<>(); // 单个APP来至配置中心的配置
 
     private boolean configCenterFirst = true;
 
@@ -55,9 +55,12 @@ public class Environment {
     }
 
     public SystemConfiguration getSystemConfig(String prefix, String id) {
+        // computeIfAbsent方法是java8中的方法，表示若key对应的value为空，会将第二个参数的返回值存入并返回
+        // toKey返回的就是类似service.serviceName.
         return systemConfigs.computeIfAbsent(toKey(prefix, id), k -> new SystemConfiguration(prefix, id));
     }
 
+    // InmemoryConfiguration里面就是一个map，所以是存在内存里面
     public InmemoryConfiguration getExternalConfig(String prefix, String id) {
         return externalConfigs.computeIfAbsent(toKey(prefix, id), k -> {
             InmemoryConfiguration configuration = new InmemoryConfiguration(prefix, id);
@@ -114,10 +117,10 @@ public class Environment {
     public CompositeConfiguration getConfiguration(String prefix, String id) {
         CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
         // Config center has the highest priority
-        compositeConfiguration.addConfiguration(this.getSystemConfig(prefix, id));
+        compositeConfiguration.addConfiguration(this.getSystemConfig(prefix, id));   // -D
         compositeConfiguration.addConfiguration(this.getAppExternalConfig(prefix, id));
         compositeConfiguration.addConfiguration(this.getExternalConfig(prefix, id));
-        compositeConfiguration.addConfiguration(this.getPropertiesConfig(prefix, id));
+        compositeConfiguration.addConfiguration(this.getPropertiesConfig(prefix, id)); //
         return compositeConfiguration;
     }
 
