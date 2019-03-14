@@ -1,0 +1,2 @@
+black=com.luban.dubbo_spi.impl.BlackCar
+benz=com.luban.dubbo_spi.impl.BenzCar

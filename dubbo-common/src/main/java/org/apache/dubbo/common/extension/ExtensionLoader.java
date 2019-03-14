@@ -341,7 +341,7 @@ public class ExtensionLoader<T> {
             synchronized (holder) {
                 instance = holder.get();
                 if (instance == null) {
-                    instance = createExtension(name);
+                    instance = createExtension(name);  // 扩展点，实现类
                     holder.set(instance);
                 }
             }
@@ -473,7 +473,7 @@ public class ExtensionLoader<T> {
                     instance = cachedAdaptiveInstance.get();
                     if (instance == null) {
                         try {
-                            instance = createAdaptiveExtension();
+                            instance = createAdaptiveExtension();  // 自适用，代理类（实现了接口）// 可以从URL里面取值，
                             cachedAdaptiveInstance.set(instance);
                         } catch (Throwable t) {
                             createAdaptiveInstanceError = t;
@@ -561,7 +561,7 @@ public class ExtensionLoader<T> {
                             String property = method.getName().length() > 3 ? method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4) : "";
                             Object object = objectFactory.getExtension(pt, property);
                             if (object != null) {
-                                method.invoke(instance, object);
+                                method.invoke(instance, object);  // 赋值
                             }
                         } catch (Exception e) {
                             logger.error("fail to inject via method " + method.getName()
@@ -640,7 +640,7 @@ public class ExtensionLoader<T> {
             if (urls != null) {
                 while (urls.hasMoreElements()) {
                     java.net.URL resourceURL = urls.nextElement();
-                    loadResource(extensionClasses, classLoader, resourceURL);
+                    loadResource(extensionClasses, classLoader, resourceURL); //
                 }
             }
         } catch (Throwable t) {

@@ -7,17 +7,9 @@
 
     <dubbo:application name="consumer-demo"/>
 
-    <dubbo:registry address="zookeeper://127.0.0.1:2181" />
-    <!--<dubbo:registry address="redis://127.0.0.1:6379" />-->
+    <dubbo:config-center address="zookeeper://127.0.0.1:2181" />
 
     <!--关闭某个服务的启动时检查 (没有提供者时报错)-->
-    <dubbo:reference interface="com.luban.dubbo_vip_xml_demo.api.HelloService" check="false" id="helloService">
-        <dubbo:method name="replyHello"/>
-    </dubbo:reference>
-
-    
-
-    <!--直接提供者，不需要进过注册中心-->
-    <!--<dubbo:reference interface="com.luban.dubbo_vip_xml_demo.api.HelloService" url="dubbo://127.0.0.1:20880" check="false" id="helloService"/>-->
+    <dubbo:reference interface="com.luban.dubbo_vip_xml_demo.api.HelloService" id="helloService"/>
 
 </beans>
