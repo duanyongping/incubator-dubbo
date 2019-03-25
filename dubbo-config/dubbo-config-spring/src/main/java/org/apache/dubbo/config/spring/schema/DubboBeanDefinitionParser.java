@@ -71,36 +71,50 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
 
     @SuppressWarnings("unchecked")
     private static BeanDefinition parse(Element element, ParserContext parserContext, Class<?> beanClass, boolean required) {
+        //Step1 初始化RootBeanDefinition
         RootBeanDefinition beanDefinition = new RootBeanDefinition();
         beanDefinition.setBeanClass(beanClass);
         beanDefinition.setLazyInit(false);
+        //Step2 获取BeanId
         String id = element.getAttribute("id");
         if (StringUtils.isEmpty(id) && required) {
+            //BeanName没有设置则按规则生成默认BeanName
             String generatedBeanName = element.getAttribute("name");
             if (StringUtils.isEmpty(generatedBeanName)) {
+                //Protocol特殊处理取名为dubbo
                 if (ProtocolConfig.class.equals(beanClass)) {
                     generatedBeanName = "dubbo";
                 } else {
+                    //其他标签采用interface 属性做为BeanName
                     generatedBeanName = element.getAttribute("interface");
                 }
             }
+            //经过如上步骤还为空的话，将className做为BeanName
             if (StringUtils.isEmpty(generatedBeanName)) {
                 generatedBeanName = beanClass.getName();
             }
             id = generatedBeanName;
             int counter = 2;
+            //判断已经注册表的标签是否已经有同名的
             while (parserContext.getRegistry().containsBeanDefinition(id)) {
+                //有同名的则递增
                 id = generatedBeanName + (counter++);
             }
         }
+        //Step3 将获取到的Bean注册到Spring
         if (id != null && id.length() > 0) {
+            //BeanId 出现重复则抛异常
             if (parserContext.getRegistry().containsBeanDefinition(id)) {
                 throw new IllegalStateException("Duplicate spring bean id " + id);
             }
+            //将xml转换为的Bean注册到Spring的parserContext
             parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
+            //为已经加载的Bean注册ID
             beanDefinition.getPropertyValues().addPropertyValue("id", id);
         }
+        // 不同配置的一些特殊处理
         if (ProtocolConfig.class.equals(beanClass)) {
+            //protocol 特殊处理，增加protocol属性
             for (String name : parserContext.getRegistry().getBeanDefinitionNames()) {
                 BeanDefinition definition = parserContext.getRegistry().getBeanDefinition(name);
                 PropertyValue property = definition.getPropertyValues().getPropertyValue("protocol");
@@ -121,10 +135,13 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
                 beanDefinition.getPropertyValues().addPropertyValue("ref", new BeanDefinitionHolder(classDefinition, id + "Impl"));
             }
         } else if (ProviderConfig.class.equals(beanClass)) {
+            //将provider转换为service
             parseNested(element, parserContext, ServiceBean.class, true, "service", "provider", id, beanDefinition);
         } else if (ConsumerConfig.class.equals(beanClass)) {
+            //将consumer转换为reference
             parseNested(element, parserContext, ReferenceBean.class, false, "reference", "consumer", id, beanDefinition);
         }
+        //Step4 将xml中配置的信息放到beandefinition的PropertyValues中
         Set<String> props = new HashSet<String>();
         ManagedMap parameters = null;
         for (Method setter : beanClass.getMethods()) {
@@ -132,6 +149,7 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
             if (name.length() > 3 && name.startsWith("set")
                     && Modifier.isPublic(setter.getModifiers())
                     && setter.getParameterTypes().length == 1) {
+                //公开的set***方法
                 Class<?> type = setter.getParameterTypes()[0];
                 String beanProperty = name.substring(3, 4).toLowerCase() + name.substring(4);
                 String property = StringUtils.camelToSplitName(beanProperty, "-");
