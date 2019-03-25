@@ -144,18 +144,22 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
         //Step4 将xml中配置的信息放到beandefinition的PropertyValues中
         Set<String> props = new HashSet<String>();
         ManagedMap parameters = null;
+        //获取bean的所有方法
         for (Method setter : beanClass.getMethods()) {
             String name = setter.getName();
+            //判断方法名是否以set开头，是否是public修饰，方法的参数个数是否是1个
             if (name.length() > 3 && name.startsWith("set")
                     && Modifier.isPublic(setter.getModifiers())
                     && setter.getParameterTypes().length == 1) {
                 //公开的set***方法
                 Class<?> type = setter.getParameterTypes()[0];
+                //截取set后面的内容，比容setName，截取后beanProperty的值是name
                 String beanProperty = name.substring(3, 4).toLowerCase() + name.substring(4);
                 String property = StringUtils.camelToSplitName(beanProperty, "-");
                 props.add(property);
                 Method getter = null;
                 try {
+                    //获取对应的get方法
                     getter = beanClass.getMethod("get" + name.substring(3), new Class<?>[0]);
                 } catch (NoSuchMethodException e) {
                     try {
