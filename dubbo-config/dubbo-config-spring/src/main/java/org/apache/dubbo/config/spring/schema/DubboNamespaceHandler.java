@@ -38,6 +38,7 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 public class DubboNamespaceHandler extends NamespaceHandlerSupport {
 
     static {
+        //去classpath下检查是否有其他的同名class，否则会打错误日志
         Version.checkDuplicate(DubboNamespaceHandler.class);
     }
 
